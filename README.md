@@ -17,3 +17,5 @@ How the Code Works:
     3. Save to Excel:
         The extracted citations are stored in a pandas DataFrame.
         The DataFrame is saved as an Excel file in the current working directory.
+
+        Note: make sure you have pip install pandas openpyxl
