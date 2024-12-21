@@ -6,11 +6,14 @@ This Python code is designed to extract citations from a LaTeX document
 The extracted citations are saved in an Excel spreadsheet, with each citation 
 listed in the order it appears in the document.
 How the Code Works:
+
     1. Upload File:
         The file name and content are processed upon upload.
+        
     2. Extract Citations:
         The file content is decoded from memoryview into a string.
         The regular expression searches for all instances of \cite{} and extracts citation keys in the order they appear.
+        
     3. Save to Excel:
         The extracted citations are stored in a pandas DataFrame.
         The DataFrame is saved as an Excel file in the current working directory.
