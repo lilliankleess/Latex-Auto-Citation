@@ -1,0 +1,82 @@
+import re
+import pandas as pd
+from IPython.display import display
+from ipywidgets import FileUpload
+import os
+
+
+def extract_citations(tex_content):
+    """
+    Extract citations from a LaTeX document.
+
+    Args:
+        tex_content (str): Content of the LaTeX file.
+
+    Returns:
+        list: A list of citations in the order they appear.
+    """
+    # Regex pattern to match \cite{} with one or multiple entries
+    citation_pattern = r"\\cite\{([^\}]+)\}"
+    matches = re.findall(citation_pattern, tex_content)
+    
+    # Split multiple citations in one \cite{} and flatten the list
+    citations = [cite.strip() for match in matches for cite in match.split(",")]
+    return citations
+
+
+def save_to_excel(citations, output_path):
+    """
+    Save the extracted citations to an Excel file.
+
+    Args:
+        citations (list): List of citations to save.
+        output_path (str): Path to save the Excel file.
+    """
+    # Create a DataFrame with citation order
+    df = pd.DataFrame({
+        'Order': range(1, len(citations) + 1),
+        'Citation': citations
+    })
+    
+    # Save DataFrame to Excel
+    df.to_excel(output_path, index=False)
+    print(f"Excel file successfully saved at: {output_path}")
+
+
+def process_file(file_content, file_name):
+    """
+    Process the uploaded LaTeX file content and extract citations.
+    
+    Args:
+        file_content (memoryview): Content of the uploaded file.
+        file_name (str): Name of the uploaded file.
+    """
+    # Convert memoryview to bytes and decode to string
+    tex_content = file_content.tobytes().decode('utf-8')  # Convert memoryview to bytes and decode
+    citations = extract_citations(tex_content)
+    
+    if not citations:
+        print("No citations found in the document.")
+        return
+    
+    # Prepare output file name
+    output_path = os.path.splitext(file_name)[0] + "_citations.xlsx"
+    
+    # Save extracted citations to Excel
+    save_to_excel(citations, output_path)
+
+
+# Use ipywidgets for file upload
+upload_widget = FileUpload(accept='.tex', multiple=False)
+
+def handle_upload(change):
+    for uploaded_file in upload_widget.value:  # Correctly access files in the widget
+        file_content = uploaded_file['content']
+        file_name = uploaded_file['name']
+        print(f"Processing file: {file_name}")
+        process_file(file_content, file_name)
+
+# Bind the upload widget's change event
+upload_widget.observe(handle_upload, names='value')
+
+display(upload_widget)
